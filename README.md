@@ -2,4 +2,4 @@
 
 Публичный IP сервера: 178.154.204.222
 
-Доменное имя сервера: api-diploma.melkornwah.nomoredomains.icu
+Доменное имя сервера: https://api-diploma.melkornwah.nomoredomains.icu
