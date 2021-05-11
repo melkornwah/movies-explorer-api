@@ -1,6 +1,6 @@
-const User = require('../models/users');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const User = require('../models/users');
 const BadRequestError = require('../errors/bad-request-error');
 const NotAuthorizedError = require('../errors/not-authorized-error');
 const ConflictError = require('../errors/conflict-error');
@@ -72,7 +72,5 @@ module.exports.login = (req, res, next) => {
 
       return res.json({ token });
     })
-    .catch((err) => {
-      res.json({ message: err.message });
-    });
+    .catch(next);
 };

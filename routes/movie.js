@@ -1,8 +1,11 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const {
-  getMovies, createMovie, deleteMovie
+  getMovies, createMovie, deleteMovie,
 } = require('../controllers/movie');
+
+const imgRegExp = '/.*.(gif|jpe?g|bmp|png)$/im';
+const videoRegExp = '/youtu(?:.*/v/|.*v=|.be/)([A-Za-z0-9_-]{11})/im';
 
 router.get('/movies', getMovies);
 
@@ -21,18 +24,18 @@ router.post('/movies', celebrate({
       .required(),
     image: Joi.string()
       .required()
-      .pattern(new RegExp(/(https|http)?:\/\/.*/i)),
+      .pattern(new RegExp(imgRegExp)),
     trailer: Joi.string()
       .required()
-      .pattern(new RegExp(/(https|http)?:\/\/.*/i)),
+      .pattern(new RegExp(videoRegExp)),
     nameRU: Joi.string()
       .required(),
     nameEN: Joi.string()
       .required(),
     thumbnail: Joi.string()
       .required()
-      .pattern(new RegExp(/(https|http)?:\/\/.*/i)),
-    movieId: Joi.string()
+      .pattern(new RegExp(imgRegExp)),
+    movieId: Joi.number()
       .required(),
   }),
 }), createMovie);

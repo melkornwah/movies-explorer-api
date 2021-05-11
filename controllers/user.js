@@ -7,7 +7,7 @@ module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(new NotFoundError('Пользователь по указанному _id не найден.'))
     .then((user) => {
-      res.json({ user });
+      res.json(user);
     })
     .catch(next);
 };
@@ -16,13 +16,13 @@ module.exports.updateUser = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, {
     $set: {
       name: req.body.name,
-      about: req.body.about,
+      email: req.body.email,
     },
   },
   { runValidators: true, new: true })
     .orFail(new Error('Пользователь по указанному _id не найден.'))
     .then((user) => {
-      res.json({ user });
+      res.json(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.message === 'Переданы некорректные данные при обновлении профиля.') {
