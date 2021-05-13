@@ -5,11 +5,11 @@ const helmet = require('helmet');
 const cors = require('cors');
 require('dotenv').config();
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const usersRoute = require('./routes/user');
-const moviesRoute = require('./routes/movie');
-const auth = require('./middlewares/auth');
-const authorize = require('./routes/auth');
-const NotFoundError = require('./errors/not-found-error');
+const errorsHandler = require('./middlewares/errors');
+const routes = require('./routes/index');
+const limiter = require('./middlewares/rate-limiter');
+
+const { NODE_ENV, DB_ADRESS } = process.env;
 
 const app = express();
 
@@ -20,7 +20,7 @@ app.disable('x-powered-by');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/moviesdb', {
+mongoose.connect(NODE_ENV === 'production' ? DB_ADRESS : 'mongodb://localhost:27017/moviesdb', {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
@@ -38,30 +38,13 @@ app.use((req, res, next) => {
 
 app.use(cors({ origin: true, credentials: true }));
 
-app.use('/', authorize);
+app.use(limiter);
 
-app.use(auth);
-
-app.use('/', usersRoute, moviesRoute);
+app.use(routes);
 
 app.use(errorLogger);
 
-app.use('*', () => {
-  throw new NotFoundError('Страница не найдена.');
-});
-
-app.use(errorLogger);
-
-app.use((err, req, res, next) => {
-  res
-    .status(err.statusCode || 500)
-    .json({
-      message: err.message,
-      statusCode: err.statusCode,
-    });
-
-  next();
-});
+app.use(errorsHandler);
 
 app.listen(3000, () => {
   // eslint-disable-next-line no-console

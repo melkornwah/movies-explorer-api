@@ -1,11 +1,9 @@
 const router = require('express').Router();
+const validator = require('validator');
 const { celebrate, Joi } = require('celebrate');
 const {
   getMovies, createMovie, deleteMovie,
 } = require('../controllers/movie');
-
-const imgRegExp = '/.*.(gif|jpe?g|bmp|png)$/im';
-const videoRegExp = '/youtu(?:.*/v/|.*v=|.be/)([A-Za-z0-9_-]{11})/im';
 
 router.get('/movies', getMovies);
 
@@ -24,17 +22,32 @@ router.post('/movies', celebrate({
       .required(),
     image: Joi.string()
       .required()
-      .pattern(new RegExp(imgRegExp)),
+      .custom((value, helpers) => {
+        if (validator.isURL(value)) {
+          return value;
+        }
+        return helpers.message('Поле image заполнено некорректно.');
+      }),
     trailer: Joi.string()
       .required()
-      .pattern(new RegExp(videoRegExp)),
+      .custom((value, helpers) => {
+        if (validator.isURL(value)) {
+          return value;
+        }
+        return helpers.message('Поле trailer заполнено некорректно.');
+      }),
     nameRU: Joi.string()
       .required(),
     nameEN: Joi.string()
       .required(),
     thumbnail: Joi.string()
       .required()
-      .pattern(new RegExp(imgRegExp)),
+      .custom((value, helpers) => {
+        if (validator.isURL(value)) {
+          return value;
+        }
+        return helpers.message('Поле tumbnail заполнено некорректно.');
+      }),
     movieId: Joi.number()
       .required(),
   }),

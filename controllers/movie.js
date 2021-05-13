@@ -1,5 +1,6 @@
 const Movie = require('../models/movie');
 const BadRequestError = require('../errors/bad-request-error');
+const ForbiddenError = require('../errors/forbidden-error');
 const NotFoundError = require('../errors/not-found-error');
 const ServerError = require('../errors/server-error');
 
@@ -44,8 +45,8 @@ module.exports.deleteMovie = (req, res, next) => {
     .then((movie) => {
       const ownerId = movie.owner;
 
-      if (ownerId === req.user._id) {
-        return Movie.findByIdAndRemove(req.params.movieId)
+      if (ownerId.toString() === req.user._id.toString()) {
+        return movie.remove()
           .then(() => res.json({ message: 'Фильм был удалён.' }));
       }
       throw new Error('Вы не являетесь владельцем фильма.');
@@ -58,7 +59,7 @@ module.exports.deleteMovie = (req, res, next) => {
         throw new BadRequestError('Неверно указан _id фильма.');
       }
       if (err.message === 'Вы не являетесь владельцем фильма.') {
-        throw new BadRequestError('Вы не являетесь владельцем фильма.');
+        throw new ForbiddenError('Вы не являетесь владельцем фильма.');
       }
       throw new ServerError('Произошла ошибка на сервере.');
     })
